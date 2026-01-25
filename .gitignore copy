@@ -1,0 +1,45 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+temp/
+tmp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Файлы настроек IDE и редакторов
+.vscode/
+.claude/
+*.sublime-project
+*.sublime-workspace
+
+# Системные файлы
+Thumbs.db
+
+# Файлы виртуального окружения
+.env
+.env.local
+.env.*.local
+
+# Файлы документации (если сгенерированы, но не исходники)
+build/
+dist/
+descriptions/
