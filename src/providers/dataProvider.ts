@@ -1,6 +1,6 @@
 import type { DataProvider } from 'react-admin';
 import { fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
+import queryString from 'query-string';
 
 const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -27,7 +27,7 @@ export const dataProvider: DataProvider = {
             ...params.filter,
         };
         const apiUrl = getApiUrl();
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
+        const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
         const { json } = await httpClient(url);
         // resource might be 'admin/users' -> extract 'users'
@@ -77,7 +77,7 @@ export const dataProvider: DataProvider = {
             ...params.filter,
         };
         const apiUrl = getApiUrl();
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
+        const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
         return httpClient(url).then(({ json }) => {
             const key = resource.split('/').pop();
