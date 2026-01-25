@@ -16,15 +16,15 @@
 
 ### Core
 - **React** 18.2+
-- **TypeScript** 5.3+
-- **Vite** 5.0+
+- **TypeScript** 5.9+
+- **Vite** 7.2+
 
 ### Framework
-- **react-admin** 4.16+
-- **ra-data-simple-rest** (в качестве базы для кастомного провайдера)
+- **react-admin** 5.14+
+- **ra-data-simple-rest** 5.14+
 
 ### UI/UX
-- **Material-UI (MUI)** 5.15+
+- **Material-UI (MUI)** 6.x (встроен в react-admin 5)
 - **@mui/icons-material**
 
 ## 3. Контракт Backend API
