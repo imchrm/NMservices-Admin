@@ -1,7 +1,7 @@
 import { Datagrid, List, NumberField, TextField, TextInput } from 'react-admin';
 
 const orderFilters = [
-    <TextInput source="status" label="Status" alwaysOn />,
+    <TextInput key="status" source="status" label="Status" alwaysOn />,
 ];
 
 export const OrderList = () => (
