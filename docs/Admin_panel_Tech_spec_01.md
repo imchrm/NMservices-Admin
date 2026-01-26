@@ -33,7 +33,7 @@ Frontend-приложение должно реализовывать взаим
 
 ### 3.1. Базовые параметры
 - **Base URL:** Задается через `.env`.
-- **Auth Header:** `X-API-Key: <key>` (во всех запросах).
+- **Auth Header:** `X-Admin-Key: <key>` (во всех запросах).
 - **Date Format:** ISO 8601 (`YYYY-MM-DDTHH:mm:ss.ssssss`).
 
 ### 3.2. Параметры запросов (Query Params)
