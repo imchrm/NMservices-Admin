@@ -10,7 +10,7 @@ const httpClient = (url: string, options: any = {}) => {
     }
     const token = localStorage.getItem('x-admin-key');
     if (token) {
-        options.headers.set('X-Admin-Key', token);
+        options.headers.set('X-API-Key', token);
     }
     return fetchUtils.fetchJson(url, options);
 };
