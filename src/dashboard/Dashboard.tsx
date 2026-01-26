@@ -12,11 +12,13 @@ export const Dashboard = () => {
     const [stats, setStats] = useState<Stats | null>(null);
 
     useEffect(() => {
+        const token = localStorage.getItem(API_CONFIG.AUTH_STORAGE_KEY);
+        if (!token) return; // Don't fetch if not authenticated
+
         const fetchStats = async () => {
             const apiUrl = API_CONFIG.getBaseUrl();
-            const token = localStorage.getItem(API_CONFIG.AUTH_STORAGE_KEY);
             const headers = new Headers({ Accept: 'application/json' });
-            if (token) headers.set(API_CONFIG.AUTH_HEADER, token);
+            headers.set(API_CONFIG.AUTH_HEADER, token);
 
             try {
                 const response = await fetch(`${apiUrl}/admin/stats`, { headers });
