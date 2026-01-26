@@ -1,10 +1,13 @@
 import type { AuthProvider } from 'react-admin';
 
 export const authProvider: AuthProvider = {
-    login: ({ username }) => {
+    login: (params) => {
+        console.log('authProvider.login called with:', params);
+        const { username } = params;
         // Spec says "API Key" single field. We'll map 'username' input to the key.
-        if (!username) return Promise.reject();
+        if (!username) return Promise.reject(new Error('Username is required'));
         localStorage.setItem('x-admin-key', username);
+        console.log('Saved to localStorage:', localStorage.getItem('x-admin-key'));
         return Promise.resolve();
     },
     logout: () => {
