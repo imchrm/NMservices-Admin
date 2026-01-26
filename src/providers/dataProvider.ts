@@ -1,16 +1,15 @@
 import type { DataProvider } from 'react-admin';
 import { fetchUtils } from 'react-admin';
 import queryString from 'query-string';
-
-const getApiUrl = () => import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_CONFIG } from '../config/api';
 
 const httpClient = (url: string, options: any = {}) => {
     if (!options.headers) {
         options.headers = new Headers({ Accept: 'application/json' });
     }
-    const token = localStorage.getItem('x-admin-key');
+    const token = localStorage.getItem(API_CONFIG.AUTH_STORAGE_KEY);
     if (token) {
-        options.headers.set('X-API-Key', token);
+        options.headers.set(API_CONFIG.AUTH_HEADER, token);
     }
     return fetchUtils.fetchJson(url, options);
 };
@@ -26,7 +25,7 @@ export const dataProvider: DataProvider = {
             limit,
             ...params.filter,
         };
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
         const { json } = await httpClient(url);
@@ -49,14 +48,14 @@ export const dataProvider: DataProvider = {
     },
 
     getOne: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
             data: json,
         }));
     },
 
     getMany: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         // Fallback to multiple requests as no endpoint specified in spec for getMany
         return Promise.all(
             params.ids.map(id =>
@@ -76,7 +75,7 @@ export const dataProvider: DataProvider = {
             [params.target]: params.id,
             ...params.filter,
         };
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
         return httpClient(url).then(({ json }) => {
@@ -97,7 +96,7 @@ export const dataProvider: DataProvider = {
     },
 
     update: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return httpClient(`${apiUrl}/${resource}/${params.id}`, {
             method: 'PATCH',
             body: JSON.stringify(params.data),
@@ -106,7 +105,7 @@ export const dataProvider: DataProvider = {
 
 
     updateMany: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return Promise.all(
             params.ids.map(id =>
                 httpClient(`${apiUrl}/${resource}/${id}`, {
@@ -118,7 +117,7 @@ export const dataProvider: DataProvider = {
     },
 
     create: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
@@ -128,7 +127,7 @@ export const dataProvider: DataProvider = {
     },
 
     delete: (resource, params) => {
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return httpClient(`${apiUrl}/${resource}/${params.id}`, {
             method: 'DELETE',
         }).then(({ json }) => ({ data: json }));
@@ -136,7 +135,7 @@ export const dataProvider: DataProvider = {
 
     deleteMany: (resource, params) => {
         // Not implemented in spec, likely not supported or loop needed
-        const apiUrl = getApiUrl();
+        const apiUrl = API_CONFIG.getBaseUrl();
         return Promise.all(
             params.ids.map(id =>
                 httpClient(`${apiUrl}/${resource}/${id}`, {
