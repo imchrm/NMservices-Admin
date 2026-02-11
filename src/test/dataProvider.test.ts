@@ -96,7 +96,7 @@ describe('dataProvider', () => {
             ];
             mockFetchJson.mockResolvedValue(mockResponse({ services: mockServices, total: 1 }));
 
-            const result = await dataProvider.getList('services', {
+            const result = await dataProvider.getList('admin/services', {
                 pagination: { page: 1, perPage: 10 },
                 sort: { field: 'id', order: 'ASC' },
                 filter: {},
@@ -229,17 +229,17 @@ describe('dataProvider', () => {
             expect(options.headers.get('X-Admin-Key')).toBe('test-admin-key');
         });
 
-        it('should send X-API-Key for services resource', async () => {
+        it('should send X-Admin-Key for services resource', async () => {
             mockFetchJson.mockResolvedValue(mockResponse({ services: [], total: 0 }));
 
-            await dataProvider.getList('services', {
+            await dataProvider.getList('admin/services', {
                 pagination: { page: 1, perPage: 10 },
                 sort: { field: 'id', order: 'ASC' },
                 filter: {},
             });
 
             const options = mockFetchJson.mock.calls[0][1] as { headers: Headers };
-            expect(options.headers.get('X-API-Key')).toBe('test-api-key');
+            expect(options.headers.get('X-Admin-Key')).toBe('test-admin-key');
         });
     });
 });

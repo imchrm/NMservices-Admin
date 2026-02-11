@@ -4,10 +4,6 @@ export const API_CONFIG = {
     ADMIN_AUTH_HEADER: 'X-Admin-Key',
     ADMIN_AUTH_STORAGE_KEY: 'x-admin-key',
 
-    // Client endpoints auth (/services)
-    API_AUTH_HEADER: 'X-API-Key',
-    API_AUTH_STORAGE_KEY: 'x-api-key',
-
     getBaseUrl: () => import.meta.env.VITE_API_URL || 'http://localhost:8000',
 
     ORDER_STATUSES: [

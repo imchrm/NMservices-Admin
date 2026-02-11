@@ -46,12 +46,9 @@ export const Dashboard = () => {
 
         const fetchServices = async () => {
             const headers = new Headers({ Accept: 'application/json' });
-            const apiToken = localStorage.getItem(API_CONFIG.API_AUTH_STORAGE_KEY);
-            if (apiToken) {
-                headers.set(API_CONFIG.API_AUTH_HEADER, apiToken);
-            }
+            headers.set(API_CONFIG.ADMIN_AUTH_HEADER, adminToken);
             try {
-                const response = await fetch(`${apiUrl}/services?limit=1`, { headers });
+                const response = await fetch(`${apiUrl}/admin/services?limit=1`, { headers });
                 if (response.ok) {
                     const data = await response.json();
                     setServicesCount(data.total);

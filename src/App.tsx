@@ -37,7 +37,7 @@ export const App = () => (
       edit={OrderEdit}
     />
     <Resource
-      name="services"
+      name="admin/services"
       options={{ label: 'Services' }}
       icon={BuildIcon}
       list={ServiceList}

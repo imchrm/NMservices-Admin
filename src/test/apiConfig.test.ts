@@ -10,14 +10,6 @@ describe('API_CONFIG', () => {
         expect(API_CONFIG.ADMIN_AUTH_STORAGE_KEY).toBe('x-admin-key');
     });
 
-    it('should have API auth header as X-API-Key', () => {
-        expect(API_CONFIG.API_AUTH_HEADER).toBe('X-API-Key');
-    });
-
-    it('should have API storage key as x-api-key', () => {
-        expect(API_CONFIG.API_AUTH_STORAGE_KEY).toBe('x-api-key');
-    });
-
     it('should return default base URL when env var is not set', () => {
         expect(API_CONFIG.getBaseUrl()).toBe('http://localhost:8000');
     });
