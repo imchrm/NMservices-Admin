@@ -10,12 +10,13 @@
 
 ### Что уже сделано (Задача 1 — Backend ✅)
 
-Backend полностью реализован и верифицирован (2026-02-10):
+Backend полностью реализован и верифицирован (2026-02-10), auth исправлен (2026-02-11):
 - FastAPI + SQLAlchemy 2 (async) + PostgreSQL
 - Таблицы: `users`, `orders`, `services`
-- API endpoints: CRUD для услуг, создание заказов, регистрация пользователей
-- Admin API: полный CRUD для пользователей, заказов + статистика
-- Тесты: 30/30 passed
+- API endpoints: чтение каталога услуг (X-API-Key), создание заказов, регистрация пользователей
+- Admin API: полный CRUD для пользователей, заказов, **услуг** + статистика (X-Admin-Key)
+- `/services` — read-only для бота; write-операции перенесены в `/admin/services`
+- Тесты: 41/41 passed
 - Версия: 0.6.0
 
 ### Инфраструктура
@@ -38,8 +39,10 @@ Backend полностью реализован и верифицирован (2
 
 | Тип | Заголовок | Env-переменная | Для чего |
 |-----|-----------|----------------|----------|
-| API Key | `X-API-Key` | `API_SECRET_KEY` | Клиентские endpoints (/users, /orders, /services) |
-| Admin Key | `X-Admin-Key` | `ADMIN_SECRET_KEY` | Админские endpoints (/admin/*) |
+| API Key | `X-API-Key` | `API_SECRET_KEY` | Клиентские endpoints (/users, /orders, /services — только чтение) |
+| Admin Key | `X-Admin-Key` | `ADMIN_SECRET_KEY` | Админские endpoints (/admin/*) — все write-операции |
+
+**Принцип:** один клиент — один ключ. Бот использует только `X-API-Key`, Admin Panel использует только `X-Admin-Key`.
 
 Реальные ключи на сервере указаны в `.env` файле проекта NMservices.
 
@@ -69,14 +72,13 @@ CORS_ORIGINS=http://localhost:5173    # Vite dev server (по умолчанию
 | GET | `/users/by-telegram/{telegram_id}` | — | `{id, phone_number, telegram_id, language_code, created_at, updated_at}` |
 | PATCH | `/users/{user_id}/language` | `{language_code}` | `{status}` |
 
-### Services (X-API-Key)
+### Services (X-API-Key) — только чтение
 | Method | Path | Request | Response | Status |
 |--------|------|---------|----------|--------|
 | GET | `/services?include_inactive=false` | — | `{services: [...], total}` | 200 |
 | GET | `/services/{service_id}` | — | `{id, name, description, base_price, duration_minutes, is_active}` | 200 |
-| POST | `/services` | `{name, description?, base_price?, duration_minutes?, is_active?}` | ServiceResponse | 201 |
-| PATCH | `/services/{service_id}` | `{name?, description?, base_price?, duration_minutes?, is_active?}` | ServiceResponse | 200 |
-| DELETE | `/services/{service_id}` | — | — (soft delete: is_active=false) | 204 |
+
+> **Примечание:** Write-операции (POST/PATCH/DELETE) перенесены в `/admin/services` — см. ниже.
 
 ### Orders (X-API-Key)
 | Method | Path | Request | Response |
@@ -100,6 +102,17 @@ CORS_ORIGINS=http://localhost:5173    # Vite dev server (по умолчанию
 | GET | `/admin/orders/{order_id}` | — | — | AdminOrderWithUserResponse (includes nested user object) |
 | PATCH | `/admin/orders/{order_id}` | — | `{status?, total_amount?, notes?}` | AdminOrderResponse |
 | DELETE | `/admin/orders/{order_id}` | — | — | `{status, message}` |
+
+### Admin Services (X-Admin-Key)
+| Method | Path | Query params | Request | Response |
+|--------|------|-------------|---------|----------|
+| GET | `/admin/services` | `skip=0, limit=100, include_inactive=true, sort_by=[id\|name\|base_price\|is_active], order=[asc\|desc]` | — | `{services: [...], total}` |
+| GET | `/admin/services/{service_id}` | — | — | ServiceResponse |
+| POST | `/admin/services` | — | `{name, description?, base_price?, duration_minutes?, is_active?}` | ServiceResponse (201) |
+| PATCH | `/admin/services/{service_id}` | — | `{name?, description?, base_price?, duration_minutes?, is_active?}` | ServiceResponse |
+| DELETE | `/admin/services/{service_id}` | — | — (soft delete: is_active=false) | 204 |
+
+> **Примечание:** `include_inactive=true` по умолчанию — админ видит все услуги, включая деактивированные. Поддерживает сортировку и пагинацию аналогично `/admin/users` и `/admin/orders`.
 
 ### Admin Stats (X-Admin-Key)
 | Method | Path | Response |
@@ -217,14 +230,14 @@ API возвращает данные в обёртке:
 ```json
 // GET /admin/users → { "users": [...], "total": 5 }
 // GET /admin/orders → { "orders": [...], "total": 10 }
-// GET /services → { "services": [...], "total": 4 }
+// GET /admin/services → { "services": [...], "total": 4 }
 ```
 DataProvider должен извлекать массив из обёртки и возвращать `{ data: [...], total: N }`.
 
-### Услуги используют другой auth-заголовок
-- `/services/*` — использует `X-API-Key` (не X-Admin-Key)
-- `/admin/*` — использует `X-Admin-Key`
-- DataProvider должен отправлять правильный заголовок в зависимости от endpoint
+### Единый auth для Admin Panel
+- Все ресурсы Admin Panel (`admin/users`, `admin/orders`, `admin/services`) используют `X-Admin-Key`
+- DataProvider отправляет единый заголовок `X-Admin-Key` для всех запросов
+- Admin Panel **не нуждается** в `X-API-Key` — чтение каталога услуг также через `/admin/services`
 
 ---
 
@@ -241,7 +254,7 @@ DataProvider должен извлекать массив из обёртки и
 ## Известные нюансы
 
 1. **CORS:** по умолчанию разрешён только `http://localhost:5173`. Если Admin Panel запускается на другом порту — добавить в `CORS_ORIGINS` на сервере (в `.env`)
-2. **Два ключа авторизации:** `/services` и `/orders` используют `X-API-Key`, а `/admin/*` использует `X-Admin-Key`. Admin Panel должна знать оба ключа
+2. **Единый ключ для Admin Panel:** Admin Panel использует только `X-Admin-Key` для всех ресурсов (`/admin/users`, `/admin/orders`, `/admin/services`, `/admin/stats`). `X-API-Key` не требуется
 3. **Сервер запускать из корня:** `cd ~/dev/python/NMservices && poetry run uvicorn nms.main:app --host 0.0.0.0 --port 8000` (не из поддиректории, иначе `.env` не найдётся)
 4. **psql доступ:** `sudo -u postgres psql -d nomus` (peer auth, не по паролю)
 5. **Swagger UI:** доступен по `http://192.168.1.191:8000/docs` — можно тестировать API интерактивно
