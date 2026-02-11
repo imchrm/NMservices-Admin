@@ -3,40 +3,15 @@ import { fetchUtils } from 'react-admin';
 import queryString from 'query-string';
 import { API_CONFIG } from '../config/api';
 
-/**
- * Determines the correct auth header and token for a given resource.
- * /services uses X-API-Key, /admin/* uses X-Admin-Key
- */
-const getAuthForResource = (resource: string): { header: string; token: string | null } => {
-    if (resource === 'services') {
-        return {
-            header: API_CONFIG.API_AUTH_HEADER,
-            token: localStorage.getItem(API_CONFIG.API_AUTH_STORAGE_KEY),
-        };
-    }
-    return {
-        header: API_CONFIG.ADMIN_AUTH_HEADER,
-        token: localStorage.getItem(API_CONFIG.ADMIN_AUTH_STORAGE_KEY),
-    };
-};
-
-const httpClient = (url: string, options: fetchUtils.Options = {}, resource?: string) => {
+const httpClient = (url: string, options: fetchUtils.Options = {}) => {
     if (!options.headers) {
         options.headers = new Headers({ Accept: 'application/json' });
     }
     const headers = options.headers as Headers;
 
-    const { header, token } = getAuthForResource(resource || '');
+    const token = localStorage.getItem(API_CONFIG.ADMIN_AUTH_STORAGE_KEY);
     if (token) {
-        headers.set(header, token);
-    }
-
-    // For services resource, also send admin key if available (fallback)
-    if (resource === 'services') {
-        const apiToken = localStorage.getItem(API_CONFIG.API_AUTH_STORAGE_KEY);
-        if (apiToken) {
-            headers.set(API_CONFIG.API_AUTH_HEADER, apiToken);
-        }
+        headers.set(API_CONFIG.ADMIN_AUTH_HEADER, token);
     }
 
     return fetchUtils.fetchJson(url, options);
@@ -99,13 +74,13 @@ export const dataProvider: DataProvider = {
         const apiUrl = API_CONFIG.getBaseUrl();
         const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
-        const { json } = await httpClient(url, {}, resource);
+        const { json } = await httpClient(url);
         return extractListData(json, resource);
     },
 
     getOne: async (resource, params) => {
         const apiUrl = API_CONFIG.getBaseUrl();
-        const { json } = await httpClient(`${apiUrl}/${resource}/${params.id}`, {}, resource);
+        const { json } = await httpClient(`${apiUrl}/${resource}/${params.id}`);
         return { data: json };
     },
 
@@ -113,7 +88,7 @@ export const dataProvider: DataProvider = {
         const apiUrl = API_CONFIG.getBaseUrl();
         const responses = await Promise.all(
             params.ids.map(id =>
-                httpClient(`${apiUrl}/${resource}/${id}`, {}, resource).then(({ json }) => json)
+                httpClient(`${apiUrl}/${resource}/${id}`).then(({ json }) => json)
             )
         );
         return { data: responses };
@@ -135,7 +110,7 @@ export const dataProvider: DataProvider = {
         const apiUrl = API_CONFIG.getBaseUrl();
         const url = `${apiUrl}/${resource}?${queryString.stringify(query)}`;
 
-        const { json } = await httpClient(url, {}, resource);
+        const { json } = await httpClient(url);
         return extractListData(json, resource);
     },
 
@@ -144,7 +119,7 @@ export const dataProvider: DataProvider = {
         const { json } = await httpClient(`${apiUrl}/${resource}/${params.id}`, {
             method: 'PATCH',
             body: JSON.stringify(params.data),
-        }, resource);
+        });
         return { data: json };
     },
 
@@ -155,7 +130,7 @@ export const dataProvider: DataProvider = {
                 httpClient(`${apiUrl}/${resource}/${id}`, {
                     method: 'PATCH',
                     body: JSON.stringify(params.data),
-                }, resource)
+                })
             )
         );
         return { data: params.ids };
@@ -166,7 +141,7 @@ export const dataProvider: DataProvider = {
         const { json } = await httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
-        }, resource);
+        });
         return {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             data: { ...params.data, id: json.id ?? json.user_id ?? json.order_id } as any,
@@ -177,7 +152,7 @@ export const dataProvider: DataProvider = {
         const apiUrl = API_CONFIG.getBaseUrl();
         const { json } = await httpClient(`${apiUrl}/${resource}/${params.id}`, {
             method: 'DELETE',
-        }, resource);
+        });
         return { data: json || { id: params.id } };
     },
 
@@ -187,7 +162,7 @@ export const dataProvider: DataProvider = {
             params.ids.map(id =>
                 httpClient(`${apiUrl}/${resource}/${id}`, {
                     method: 'DELETE',
-                }, resource)
+                })
             )
         );
         return { data: params.ids };
