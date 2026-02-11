@@ -31,7 +31,7 @@ Backend полностью реализован и верифицирован (2
 | Backend путь (Windows) | `C:\Users\zum\dev\python\NMservices` |
 | Admin Panel путь (Windows) | `C:\Users\zum\dev\js\NMservices-Admin` |
 | Репозиторий Backend | `imchrm/NMservices` |
-| Репозиторий Admin | `NMservices-Admin` (создать) |
+| Репозиторий Admin | `imchrm/NMservices-Admin` |
 
 ### Аутентификация
 
@@ -174,70 +174,76 @@ CORS_ORIGINS=http://localhost:5173    # Vite dev server (по умолчанию
 
 ---
 
-## Что нужно сделать (Задача 2)
+## Что сделано (Задача 2 — Admin Panel ✅)
 
-### 2.1. Инициализация проекта
-- Создать проект: Vite + React + TypeScript
-- Установить react-admin и зависимости
-- Настроить dataProvider для API (http://192.168.1.191:8000)
-- Настроить authProvider (X-Admin-Key)
+### 2.1. Инициализация проекта ✅
+- [x] Проект создан: Vite 7.2 + React 18.2 + TypeScript 5.9
+- [x] react-admin 5.14 установлен с зависимостями (Material-UI, query-string)
+- [x] dataProvider настроен (`src/providers/dataProvider.ts`) — пагинация skip/limit, сортировка sort_by/order, фильтрация, извлечение данных из обёрток API
+- [x] authProvider настроен (`src/providers/authProvider.ts`) — login/logout/checkAuth через `X-Admin-Key` в localStorage
 
-### 2.2. Dashboard
-- Статистика: кол-во пользователей, заказов, услуг (GET /admin/stats)
-- Заказы по статусам
+### 2.2. Dashboard ✅
+- [x] Статистика: кол-во пользователей, заказов (GET /admin/stats), услуг (GET /admin/services)
+- [x] Заказы по статусам — цветные Chip (pending=warning, confirmed=info, in_progress=primary, completed=success, cancelled=error)
 
-### 2.3. Услуги (services)
-- Список (таблица с фильтрацией и сортировкой)
-- Просмотр (детальная карточка)
-- Создание (форма)
-- Редактирование
-- Деактивация (soft delete)
+### 2.3. Услуги (admin/services) ✅
+- [x] Список (`ServiceList.tsx`) — таблица с колонками id, name, base_price, duration_minutes, is_active, created_at
+- [x] Просмотр (`ServiceShow.tsx`) — детальная карточка со всеми полями
+- [x] Создание (`ServiceCreate.tsx`) — форма: name (required), description, base_price, duration_minutes, is_active
+- [x] Редактирование (`ServiceEdit.tsx`) — форма с теми же полями
+- [x] Деактивация — через поле is_active + стандартный Delete в react-admin
 
-### 2.4. Заказы (orders)
-- Список (таблица с фильтрацией по статусу, дате)
-- Просмотр (детали: пользователь, услуга, адрес, статус)
-- Редактирование (смена статуса, notes)
-- Создание (ручное администратором)
+### 2.4. Заказы (admin/orders) ✅
+- [x] Список (`OrderList.tsx`) — таблица с фильтрацией по статусу (SelectInput), ссылка на пользователя
+- [x] Просмотр (`OrderShow.tsx`) — детали: user (ссылка), service (ссылка), status, total_amount, address_text, scheduled_at, notes
+- [x] Редактирование (`OrderEdit.tsx`) — смена статуса (SelectInput), total_amount, notes
+- [x] Создание (`OrderCreate.tsx`) — user_id, status, total_amount, notes
 
-### 2.5. Пользователи (users)
-- Список (таблица)
-- Просмотр (профиль + история заказов)
+### 2.5. Пользователи (admin/users) ✅
+- [x] Список (`UserList.tsx`) — таблица: id, phone_number, telegram_id, language_code, created_at, updated_at
+- [x] Просмотр (`UserShow.tsx`) — профиль + история заказов (ReferenceManyField → Datagrid)
+- [x] Создание (`UserCreate.tsx`) — phone_number (required), telegram_id, language_code
+
+### 2.6. Тесты ✅
+- [x] `apiConfig.test.ts` — 6 тестов на конфигурацию
+- [x] `authProvider.test.ts` — 9 тестов на авторизацию
+- [x] `dataProvider.test.ts` — 15 тестов на CRUD, пагинацию, сортировку, фильтрацию, auth headers
+- [x] Итого: 30/30 passed
 
 ---
 
-## Особенности API для react-admin dataProvider
+## Особенности реализации dataProvider
 
 ### Пагинация
-API использует `skip` / `limit` (не page/perPage). DataProvider должен конвертировать:
+DataProvider конвертирует react-admin пагинацию в формат API:
 ```
 react-admin: { page: 2, perPage: 25 }  →  API: { skip: 25, limit: 25 }
 ```
 
 ### Сортировка
-API принимает `sort_by` и `order`:
+DataProvider маппит react-admin sort в API-параметры:
 ```
 react-admin: { field: 'created_at', order: 'DESC' }  →  API: { sort_by: 'created_at', order: 'desc' }
 ```
 
 ### Фильтрация
-Заказы поддерживают `status_filter`:
+Для заказов DataProvider маппит `status` → `status_filter`:
 ```
 react-admin: { status: 'pending' }  →  API: { status_filter: 'pending' }
 ```
 
-### Ответы — формат обёртки
-API возвращает данные в обёртке:
+### Ответы — извлечение из обёртки
+`extractListData()` извлекает массив по последнему сегменту пути ресурса:
 ```json
-// GET /admin/users → { "users": [...], "total": 5 }
-// GET /admin/orders → { "orders": [...], "total": 10 }
-// GET /admin/services → { "services": [...], "total": 4 }
+// GET /admin/users → { "users": [...], "total": 5 }     → key = "users"
+// GET /admin/orders → { "orders": [...], "total": 10 }   → key = "orders"
+// GET /admin/services → { "services": [...], "total": 4 } → key = "services"
 ```
-DataProvider должен извлекать массив из обёртки и возвращать `{ data: [...], total: N }`.
 
-### Единый auth для Admin Panel
-- Все ресурсы Admin Panel (`admin/users`, `admin/orders`, `admin/services`) используют `X-Admin-Key`
-- DataProvider отправляет единый заголовок `X-Admin-Key` для всех запросов
-- Admin Panel **не нуждается** в `X-API-Key` — чтение каталога услуг также через `/admin/services`
+### Единый auth
+- `httpClient()` добавляет `X-Admin-Key` ко всем запросам
+- Ключ хранится в `localStorage['x-admin-key']`
+- Admin Panel **не использует** `X-API-Key` — все ресурсы под `/admin/*`
 
 ---
 
