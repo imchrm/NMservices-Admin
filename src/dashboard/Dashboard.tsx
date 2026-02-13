@@ -9,6 +9,7 @@ import { API_CONFIG } from '../config/api';
 interface Stats {
     total_users: number;
     total_orders: number;
+    total_services: number;
     orders_by_status: Record<string, number>;
 }
 
@@ -22,7 +23,6 @@ const STATUS_COLORS: Record<string, 'default' | 'warning' | 'info' | 'primary' |
 
 export const Dashboard = () => {
     const [stats, setStats] = useState<Stats | null>(null);
-    const [servicesCount, setServicesCount] = useState<number | null>(null);
 
     useEffect(() => {
         const adminToken = localStorage.getItem(API_CONFIG.ADMIN_AUTH_STORAGE_KEY);
@@ -44,22 +44,7 @@ export const Dashboard = () => {
             }
         };
 
-        const fetchServices = async () => {
-            const headers = new Headers({ Accept: 'application/json' });
-            headers.set(API_CONFIG.ADMIN_AUTH_HEADER, adminToken);
-            try {
-                const response = await fetch(`${apiUrl}/admin/services?limit=1`, { headers });
-                if (response.ok) {
-                    const data = await response.json();
-                    setServicesCount(data.total);
-                }
-            } catch (error) {
-                console.error('Failed to fetch services count:', error);
-            }
-        };
-
         fetchStats();
-        fetchServices();
     }, []);
 
     return (
@@ -97,7 +82,7 @@ export const Dashboard = () => {
                             <Typography color="textSecondary">Services</Typography>
                         </Box>
                         <Typography variant="h4">
-                            {servicesCount !== null ? servicesCount : '—'}
+                            {stats ? stats.total_services : '—'}
                         </Typography>
                     </Card>
                 </Box>

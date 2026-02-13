@@ -1,7 +1,12 @@
-import { Datagrid, DateField, List, TextField } from 'react-admin';
+import { Datagrid, DateField, DateInput, List, TextField } from 'react-admin';
+
+const userFilters = [
+    <DateInput key="date_from" source="date_from" label="From" alwaysOn />,
+    <DateInput key="date_to" source="date_to" label="To" alwaysOn />,
+];
 
 export const UserList = () => (
-    <List>
+    <List filters={userFilters}>
         <Datagrid rowClick="show">
             <TextField source="id" />
             <TextField source="phone_number" label="Phone" />
