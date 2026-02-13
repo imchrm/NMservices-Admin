@@ -1,6 +1,7 @@
 import {
     Datagrid,
     DateField,
+    DateInput,
     List,
     NumberField,
     ReferenceField,
@@ -17,6 +18,8 @@ const orderFilters = [
         choices={API_CONFIG.ORDER_STATUSES.map(s => ({ id: s.id, name: s.name }))}
         alwaysOn
     />,
+    <DateInput key="date_from" source="date_from" label="From" alwaysOn />,
+    <DateInput key="date_to" source="date_to" label="To" alwaysOn />,
 ];
 
 export const OrderList = () => (

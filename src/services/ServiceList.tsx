@@ -2,6 +2,7 @@ import {
     BooleanField,
     Datagrid,
     DateField,
+    DateInput,
     List,
     NumberField,
     TextField,
@@ -12,6 +13,8 @@ import {
 const serviceFilters = [
     <TextInput key="name" source="name" label="Name" alwaysOn />,
     <BooleanInput key="include_inactive" source="include_inactive" label="Include inactive" />,
+    <DateInput key="date_from" source="date_from" label="From" alwaysOn />,
+    <DateInput key="date_to" source="date_to" label="To" alwaysOn />,
 ];
 
 export const ServiceList = () => (
