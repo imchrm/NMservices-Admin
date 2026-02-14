@@ -14,7 +14,7 @@ export const OrderShow = () => (
             <ReferenceField label="User" source="user_id" reference="admin/users" link="show">
                 <TextField source="phone_number" />
             </ReferenceField>
-            <ReferenceField label="Service" source="service_id" reference="services" link="show">
+            <ReferenceField label="Service" source="service_id" reference="admin/services" link="show">
                 <TextField source="name" />
             </ReferenceField>
             <TextField source="status" />
