@@ -13,7 +13,7 @@ export const OrderCreate = () => (
     <Create>
         <SimpleForm>
             <NumberInput source="user_id" label="User ID" required />
-            <ReferenceInput source="service_id" reference="services" />
+            <ReferenceInput source="service_id" reference="admin/services" />
             <SelectInput
                 source="status"
                 choices={API_CONFIG.ORDER_STATUSES.map(s => ({ id: s.id, name: s.name }))}
