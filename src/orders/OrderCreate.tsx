@@ -1,4 +1,5 @@
 import {
+    AutocompleteInput,
     Create,
     DateTimeInput,
     NumberInput,
@@ -12,7 +13,13 @@ import { API_CONFIG } from '../config/api';
 export const OrderCreate = () => (
     <Create>
         <SimpleForm>
-            <NumberInput source="user_id" label="User ID" required />
+            <ReferenceInput source="user_id" reference="admin/users">
+                <AutocompleteInput
+                    label="User"
+                    optionText={(record) => record ? `#${record.id} ${record.phone_number}` : ''}
+                    filterToQuery={(q: string) => ({ q })}
+                />
+            </ReferenceInput>
             <ReferenceInput source="service_id" reference="admin/services" />
             <SelectInput
                 source="status"
