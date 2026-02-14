@@ -16,7 +16,7 @@ export const OrderCreate = () => (
             <ReferenceInput source="user_id" reference="admin/users">
                 <AutocompleteInput
                     label="User"
-                    optionText={(record) => record ? `#${record.id} ${record.phone_number}` : ''}
+                    optionText={(record) => record ? `${record.id} (${record.phone_number})` : ''}
                     filterToQuery={(q: string) => ({ q })}
                 />
             </ReferenceInput>
