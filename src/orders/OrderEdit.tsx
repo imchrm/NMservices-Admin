@@ -1,13 +1,13 @@
 import {
     DateTimeInput,
     Edit,
-    NumberInput,
     ReferenceInput,
     SelectInput,
     SimpleForm,
     TextInput,
 } from 'react-admin';
 import { API_CONFIG } from '../config/api';
+import { AutoAmountInput } from './AutoAmountInput';
 
 export const OrderEdit = () => (
     <Edit>
@@ -17,7 +17,7 @@ export const OrderEdit = () => (
                 choices={API_CONFIG.ORDER_STATUSES.map(s => ({ id: s.id, name: s.name }))}
             />
             <ReferenceInput source="service_id" reference="admin/services" />
-            <NumberInput source="total_amount" label="Amount" />
+            <AutoAmountInput />
             <TextInput source="address_text" label="Address" fullWidth />
             <DateTimeInput source="scheduled_at" label="Scheduled" />
             <TextInput source="notes" multiline fullWidth />
