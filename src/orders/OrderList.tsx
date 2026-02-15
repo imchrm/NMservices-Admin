@@ -26,7 +26,7 @@ export const OrderList = () => (
     <List filters={orderFilters}>
         <Datagrid rowClick="show">
             <TextField source="id" />
-            <ReferenceField label="User" source="user_id" reference="admin/users" link="show">
+            <ReferenceField label="Phone" source="user_id" reference="admin/users" link="show">
                 <TextField source="phone_number" />
             </ReferenceField>
             <TextField source="status" />
