@@ -5,6 +5,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import { authProvider } from './providers/authProvider';
 import { dataProvider } from './providers/dataProvider';
 import { Dashboard } from './dashboard/Dashboard';
+import { AppLayout } from './layout/AppLayout';
 import { UserList } from './users/UserList';
 import { UserShow } from './users/UserShow';
 import { UserCreate } from './users/UserCreate';
@@ -18,7 +19,7 @@ import { ServiceCreate } from './services/ServiceCreate';
 import { ServiceEdit } from './services/ServiceEdit';
 
 export const App = () => (
-  <Admin authProvider={authProvider} dataProvider={dataProvider} dashboard={Dashboard}>
+  <Admin authProvider={authProvider} dataProvider={dataProvider} dashboard={Dashboard} layout={AppLayout}>
     <Resource
       name="admin/users"
       options={{ label: 'Users' }}
