@@ -17,5 +17,5 @@ export const AutoAmountInput = () => {
         }
     }, [service?.base_price, setValue]);
 
-    return <NumberInput source="total_amount" label="Amount" disabled />;
+    return <NumberInput source="total_amount" label="Amount" readOnly />;
 };
