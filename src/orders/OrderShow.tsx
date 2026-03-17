@@ -18,6 +18,7 @@ export const OrderShow = () => (
                 <TextField source="name" />
             </ReferenceField>
             <TextField source="status" />
+            <TextField source="payment_status" label="Payment Status" emptyText="—" />
             <NumberField source="total_amount" label="Amount" />
             <TextField source="address_text" label="Address" />
             <DateField source="scheduled_at" label="Scheduled" showTime />

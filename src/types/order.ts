@@ -3,6 +3,7 @@ export interface Order {
     user_id: number;
     service_id?: number;
     status: string;
+    payment_status?: string;
     total_amount?: number;
     address_text?: string;
     scheduled_at?: string;
